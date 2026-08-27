@@ -3,6 +3,8 @@ clear classes; % Clears stale OOP memory buffers
 close all;
 clc;
 
+dt = "out_" + string(datetime('now', 'Format', 'yyyyMMddHHmmss'));
+
 sim = general.Simulation();
 sim.StartTime = 0;
 sim.StopTime = 3; 
@@ -18,10 +20,9 @@ generator = node.LineGeneratorNode("LineGenerator", genConfig);
 
 stitcher = node.ImageStitcherNode("Stitcher",  struct());
 displayNode = node.ImageDisplayNode("Display", struct());
-detector = node.NumberDetectorNode("Detector", struct());
 
 estConfig = struct();
-estConfig.outputDir = 'simulation_output'; % Save folder
+estConfig.outputDir =  fullfile('data', dt, 'simulation_output');
 estimator = node.EstimationNode("NumberEstimator", estConfig);
 
 % --- 2. Add Nodes to Graph ---
@@ -29,7 +30,6 @@ sim.addNode(scheduler);
 sim.addNode(generator);
 sim.addNode(stitcher);
 sim.addNode(displayNode); 
-sim.addNode(detector); 
 sim.addNode(estimator);
 
 % --- 3. Wire the Connections ---
@@ -37,7 +37,6 @@ sim.connect("MasterClock", "cpi_schedule", "LineGenerator", "cpi_schedule", 'Lat
 sim.connect("MasterClock", "cpi_schedule", "Stitcher", "cpi_schedule", 'Latency', 0.001);
 sim.connect("LineGenerator", "image_line", "Stitcher", "image_line", 'Latency', 0.002);
 sim.connect("Stitcher", "full_image", "Display", "full_image", 'Latency', 0.005);
-sim.connect("Stitcher", "full_image", "Detector", "image_in", 'Latency', 0.005);
 sim.connect("Stitcher", "full_image", "NumberEstimator", "stitched_image", 'Latency', 0.010);
 
 sim.visualize()

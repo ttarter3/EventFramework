@@ -13,7 +13,7 @@ classdef EstimationNode < general.Node
       obj.State = struct();
       
       if ~isfield(obj.Config, 'outputDir')
-        obj.Config.outputDir = 'simulation_output';
+        obj.Config.outputDir = fullfile('data', string(datetime('now', 'Format', 'yyyyMMddHHmmss')), 'simulation_output');
       end
       if ~exist(obj.Config.outputDir, 'dir')
         mkdir(obj.Config.outputDir);
